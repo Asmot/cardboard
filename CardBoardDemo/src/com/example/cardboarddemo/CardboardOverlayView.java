@@ -118,6 +118,7 @@ public class CardboardOverlayView extends LinearLayout {
             imageView = new ImageView(context, attrs);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setAdjustViewBounds(true);  // Preserve aspect ratio.
+            imageView.setBackgroundResource(R.drawable.icon);
             addView(imageView);
 
             textView = new TextView(context, attrs);
@@ -148,36 +149,36 @@ public class CardboardOverlayView extends LinearLayout {
 
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            // Width and height of this ViewGroup.
-            final int width = right - left;
-            final int height = bottom - top;
-
-            // The size of the image, given as a fraction of the dimension as a ViewGroup. We multiply
-            // both width and heading with this number to compute the image's bounding box. Inside the
-            // box, the image is the horizontally and vertically centered.
-            final float imageSize = 0.12f;
-
-            // The fraction of this ViewGroup's height by which we shift the image off the ViewGroup's
-            // center. Positive values shift downwards, negative values shift upwards.
-            final float verticalImageOffset = -0.07f;
-
-            // Vertical position of the text, specified in fractions of this ViewGroup's height.
-            final float verticalTextPos = 0.52f;
-
-            // Layout ImageView
-            float imageMargin = (1.0f - imageSize) / 2.0f;
-            float leftMargin = (int) (width * (imageMargin + offset));
-            float topMargin = (int) (height * (imageMargin + verticalImageOffset));
-            imageView.layout(
-                (int) leftMargin, (int) topMargin,
-                (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
-
-            // Layout TextView
-            leftMargin = offset * width;
-            topMargin = height * verticalTextPos;
-            textView.layout(
-                (int) leftMargin, (int) topMargin,
-                (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
+//            // Width and height of this ViewGroup.
+//            final int width = right - left;
+//            final int height = bottom - top;
+//
+//            // The size of the image, given as a fraction of the dimension as a ViewGroup. We multiply
+//            // both width and heading with this number to compute the image's bounding box. Inside the
+//            // box, the image is the horizontally and vertically centered.
+//            final float imageSize = 0.12f;
+//
+//            // The fraction of this ViewGroup's height by which we shift the image off the ViewGroup's
+//            // center. Positive values shift downwards, negative values shift upwards.
+//            final float verticalImageOffset = -0.07f;
+//
+//            // Vertical position of the text, specified in fractions of this ViewGroup's height.
+//            final float verticalTextPos = 0.52f;
+//
+//            // Layout ImageView
+//            float imageMargin = (1.0f - imageSize) / 2.0f;
+//            float leftMargin = (int) (width * (imageMargin + offset));
+//            float topMargin = (int) (height * (imageMargin + verticalImageOffset));
+//            imageView.layout(
+//                (int) leftMargin, (int) topMargin,
+//                (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
+//
+//            // Layout TextView
+//            leftMargin = offset * width;
+//            topMargin = height * verticalTextPos;
+//            textView.layout(
+//                (int) leftMargin, (int) topMargin,
+//                (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
         }
     }
 }

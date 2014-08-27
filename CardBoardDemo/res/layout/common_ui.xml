@@ -6,18 +6,24 @@
     android:layout_height="fill_parent" >
 
 
-    <com.google.vrtoolkit.cardboard.CardboardView
+   <com.google.vrtoolkit.cardboard.CardboardView
         android:id="@+id/cardboard_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true" >
+    	
+   
+        
+    </com.google.vrtoolkit.cardboard.CardboardView>
 
     <com.example.cardboarddemo.CardboardOverlayView
         android:id="@+id/overlay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true" >
+        
+    </com.example.cardboarddemo.CardboardOverlayView>
 
 </RelativeLayout>
