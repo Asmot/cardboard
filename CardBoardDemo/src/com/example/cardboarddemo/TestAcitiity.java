@@ -1,28 +1,15 @@
 package com.example.cardboarddemo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.example.cardboarddemo.test.Square;
-import com.example.cardboarddemo.test.Triangle;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.EyeTransform;
@@ -31,96 +18,66 @@ import com.google.vrtoolkit.cardboard.Viewport;
 
 public class TestAcitiity extends CardboardActivity implements CardboardView.StereoRenderer{
 	
+    private static final float CAMERA_Z = 0.01f;
+    private static final float TIME_DELTA = 0.3f;
+
+    private static final float YAW_LIMIT = 0.12f;
+    private static final float PITCH_LIMIT = 0.12f;
+	
 	private final static String TAG="TestAcitiity";
-
-	private Vibrator mVibrator;
-    private Triangle mTriangle;
-
+	
+	
+	private Vibrator  mVibrator;
+	
+	 private Square   mSquare;
+	 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
-    private final float[] mRotationMatrix = new float[16];
-
-    private float mAngle;
-	 
-	 private final String vertexShaderCode =
-			    "attribute vec4 vPosition;" +
-			    "void main() {" +
-			    "  gl_Position = vPosition;" +
-			    "}";
-
-	private final String fragmentShaderCode =
-	    "precision mediump float;" +
-	    "uniform vec4 vColor;" +
-	    "void main() {" +
-	    "  gl_FragColor = vColor;" +
-	    "}";
- 
-	  /**
-     * Utility method for compiling a OpenGL shader.
-     *
-     * <p><strong>Note:</strong> When developing shaders, use the checkGlError()
-     * method to debug shader coding errors.</p>
-     *
-     * @param type - Vertex or fragment shader type.
-     * @param shaderCode - String containing the shader code.
-     * @return - Returns an id for the shader.
-     */
-    public static int loadShader(int type, String shaderCode){
-
-        // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
-        int shader = GLES20.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES20.glShaderSource(shader, shaderCode);
-        GLES20.glCompileShader(shader);
-
-        return shader;
-    }
-
-    /**
-    * Utility method for debugging OpenGL calls. Provide the name of the call
-    * just after making it:
-    *
-    * <pre>
-    * mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
-    * MyGLRenderer.checkGlError("glGetUniformLocation");</pre>
-    *
-    * If the operation is not successful, the check throws an error.
-    *
-    * @param glOperation - Name of the OpenGL call to check.
-    */
-    public static void checkGlError(String glOperation) {
-        int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            Log.e(TAG, glOperation + ": glError " + error);
-            throw new RuntimeException(glOperation + ": glError " + error);
-        }
-    }
-			
+    
+    private final float[] mRotationMatrix=new float[16];
+    private int mAngle;
+	
 	@Override
 	protected void onCreate(Bundle arg0) {
 		// TODO Auto-generated method stub
 		super.onCreate(arg0);
 		
 		setContentView(R.layout.common_ui);
-        CardboardView cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
-        cardboardView.setRenderer(this);
-        setCardboardView(cardboardView);
-        
-        
-        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        
+	    CardboardView cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
+	    // Associate a CardboardView.StereoRenderer with cardboardView.
+	    cardboardView.setRenderer(this);
+	    
+	    // Associate the cardboardView with this activity. 
+	    setCardboardView(cardboardView);
+
+	    mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         
        
 	}
 
+	
+	
 	@Override
-	public void onDrawEye(EyeTransform arg0) {
+	public void onDrawEye(EyeTransform transform) {
 		// TODO Auto-generated method stub
-		Log.i(TAG, "onDrawEye");
+
+      Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+//
+//      mSquare.draw(mMVPMatrix);
+      
+    // Create a rotation for the triangle  
+    // long time = SystemClock.uptimeMillis() % 4000L;  
+    // float angle = 0.090f * ((int) time);  
+    Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);  
+  
+    // 合并旋转矩阵到投影和相机视口矩阵  
+    Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);  
+  
+    // 画一个角度  
+    mSquare.draw(mMVPMatrix);
+
 	}
 
 	@Override
@@ -130,37 +87,31 @@ public class TestAcitiity extends CardboardActivity implements CardboardView.Ste
 	}
 
 	@Override
-	public void onNewFrame(HeadTransform arg0) {
+	public void onNewFrame(HeadTransform headTransform) {
 		// TODO Auto-generated method stub
-		Log.i(TAG, "onNewFrame");
-		 float[] scratch = new float[16];
-
-        // Draw background color
+		 // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 1, 0,-3, CAMERA_Z, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-
-
-//         Create a rotation for the triangle
-//
-//         Use the following code to generate constant rotation.
-//         Leave this code out when using TouchEvents.
-         long time = SystemClock.uptimeMillis() % 4000L;
-         float angle = 0.090f * ((int) time);
-
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
-
-        // Combine the rotation matrix with the projection and camera view
-        // Note that the mMVPMatrix factor *must be first* in order
-        // for the matrix multiplication product to be correct.
-        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-
-        // Draw triangle
-        mTriangle.draw(scratch);
+////        // Calculate the projection and view transformation
+//        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+////
+////        
+////        // Draw square
+//        mSquare.draw(mMVPMatrix);
+        
+//       // Create a rotation for the triangle  
+//        // long time = SystemClock.uptimeMillis() % 4000L;  
+//        // float angle = 0.090f * ((int) time);  
+//        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);  
+//      
+//        // 合并旋转矩阵到投影和相机视口矩阵  
+//        Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);  
+//      
+//        // 画一个角度  
+//        mSquare.draw(mMVPMatrix);
 	}
 
 	@Override
@@ -172,7 +123,7 @@ public class TestAcitiity extends CardboardActivity implements CardboardView.Ste
 	@Override
 	public void onSurfaceChanged(int width, int height) {
 		// TODO Auto-generated method stub
-		 // Adjust the viewport based on geometry changes,
+		// Adjust the viewport based on geometry changes,
         // such as screen rotation
         GLES20.glViewport(0, 0, width, height);
 
@@ -188,37 +139,20 @@ public class TestAcitiity extends CardboardActivity implements CardboardView.Ste
 	@Override
 	public void onSurfaceCreated(EGLConfig gl) {
 		// TODO Auto-generated method stub
-		// 初始化一个三角形
-	    mTriangle = new Triangle();
-	  
+		 Log.i(TAG, "onSurfaceCreated");
+        // Set the background frame color
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        
+        mSquare   = new Square();
 	}
 	
 	
     @Override
     public void onCardboardTrigger() {
         Log.i(TAG, "onCardboardTrigger");
-
-       
-        // Always give user feedback
-        mVibrator.vibrate(50);
-    }
-    /**
-     * Returns the rotation angle of the triangle shape (mTriangle).
-     *
-     * @return - A float representing the rotation angle.
-     */
-    public float getAngle() {
-        return mAngle;
-    }
-
-    /**
-     * Sets the rotation angle of the triangle shape (mTriangle).
-     */
-    public void setAngle(float angle) {
-        mAngle = angle;
     }
     
-    private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+    
     private float mPreviousX;
     private float mPreviousY;
 
@@ -236,26 +170,25 @@ public class TestAcitiity extends CardboardActivity implements CardboardView.Ste
 
                 float dx = x - mPreviousX;
                 float dy = y - mPreviousY;
-
-                // reverse direction of rotation above the mid-line
-//                if (y > getHeight() / 2) {
-//                    dx = dx * -1 ;
-//                }
-//
-//                // reverse direction of rotation to left of the mid-line
-//                if (x < getWidth() / 2) {
-//                    dy = dy * -1 ;
-//                }
-
-                setAngle(
-                        getAngle() +
-                        ((dx + dy) * TOUCH_SCALE_FACTOR));  // = 180.0f / 320
-//                requestRender();
+                
+                // reverse direction of rotation above the mid-line  
+                if (y > 1000 / 2) {  
+                  dx = dx * -1 ;  
+                }  
+      
+                // reverse direction of rotation to left of the mid-line  
+                if (x < 2000 / 2) {  
+                  dy = dy * -1 ;  
+                }  
+      
+                mAngle += (dx + dy) * (180.0f / 320);  // = 180.0f / 320  
+                
         }
 
         mPreviousX = x;
         mPreviousY = y;
         return true;
     }
+    
 }
 
