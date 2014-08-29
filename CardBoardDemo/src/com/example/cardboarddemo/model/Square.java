@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.cardboarddemo;
+package com.example.cardboarddemo.model;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+
+import com.example.cardboarddemo.Utils;
 
 import android.opengl.GLES20;
 
@@ -143,7 +145,7 @@ public class Square {
         GLES20.glDrawElements(
                 GLES20.GL_TRIANGLES, drawOrder.length,
                 GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
-
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
