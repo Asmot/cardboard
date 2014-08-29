@@ -63,20 +63,21 @@ public class TestAcitiity extends CardboardActivity implements CardboardView.Ste
 	public void onDrawEye(EyeTransform transform) {
 		// TODO Auto-generated method stub
 
-      Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+		 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		 Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 //
 //      mSquare.draw(mMVPMatrix);
       
-    // Create a rotation for the triangle  
-    // long time = SystemClock.uptimeMillis() % 4000L;  
-    // float angle = 0.090f * ((int) time);  
-    Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);  
-  
-    // 合并旋转矩阵到投影和相机视口矩阵  
-    Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);  
-  
-    // 画一个角度  
-    mSquare.draw(mMVPMatrix);
+	    // Create a rotation for the triangle  
+	    // long time = SystemClock.uptimeMillis() % 4000L;  
+	    // float angle = 0.090f * ((int) time);  
+	    Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);  
+	  
+	    // 合并旋转矩阵到投影和相机视口矩阵  
+	    Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);  
+	  
+	    // 画一个角度  
+	    mSquare.draw(mMVPMatrix);
 
 	}
 
